@@ -54,7 +54,21 @@ public class JwtUtil {
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
+        if (userDetails instanceof CustomUserDetails) {
+            claims.put("role", ((CustomUserDetails) userDetails).getUser().getRole().name());
+        } else {
+            userDetails.getAuthorities().stream()
+                    .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                    .filter(auth -> auth.startsWith("ROLE_"))
+                    .findFirst()
+                    .map(auth -> auth.substring(5))
+                    .ifPresent(role -> claims.put("role", role));
+        }
         return createToken(claims, userDetails.getUsername());
+    }
+
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
     private String createToken(Map<String, Object> claims, String subject) {

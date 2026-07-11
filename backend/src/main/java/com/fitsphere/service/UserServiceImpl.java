@@ -3,6 +3,7 @@ package com.fitsphere.service;
 import com.fitsphere.dto.UserRegistrationDto;
 import com.fitsphere.exception.UserNotFoundException;
 import com.fitsphere.model.User;
+import com.fitsphere.model.Role;
 import com.fitsphere.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,7 +27,7 @@ public class UserServiceImpl implements UserService {
                 .name(userRegistrationDto.getName())
                 .email(userRegistrationDto.getEmail())
                 .password(passwordEncoder.encode(userRegistrationDto.getPassword()))
-                .role("USER")
+                .role(Role.USER)
                 .build();
 
         return userRepository.save(user);
@@ -41,5 +42,11 @@ public class UserServiceImpl implements UserService {
     public User getUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+    }
+
+    @Override
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
     }
 }
