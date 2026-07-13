@@ -9,4 +9,6 @@ public interface UserService {
     List<User> getAllUsers();
     User getUserById(Long id);
     User getUserByEmail(String email);
+    List<User> getUsersByRole(com.fitsphere.model.Role role);
+    User assignTrainer(Long clientId, Long trainerId);
 }

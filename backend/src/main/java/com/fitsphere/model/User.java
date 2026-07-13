@@ -36,6 +36,19 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    @ManyToOne
+    @JoinColumn(name = "trainer_id")
+    private Trainer trainer;
+
+    @ManyToMany
+    @JoinTable(
+        name = "client_workouts",
+        joinColumns = @JoinColumn(name = "client_id"),
+        inverseJoinColumns = @JoinColumn(name = "workout_id")
+    )
+    @Builder.Default
+    private java.util.Set<Workout> workouts = new java.util.HashSet<>();
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
