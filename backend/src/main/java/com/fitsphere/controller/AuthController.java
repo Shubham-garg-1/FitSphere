@@ -2,6 +2,7 @@ package com.fitsphere.controller;
 
 import com.fitsphere.dto.LoginRequestDto;
 import com.fitsphere.dto.LoginResponseDto;
+import com.fitsphere.security.CustomUserDetails;
 import com.fitsphere.security.CustomUserDetailsService;
 import com.fitsphere.security.JwtUtil;
 import jakarta.validation.Valid;
@@ -40,9 +41,15 @@ public class AuthController {
         // 3. Generate the JWT token
         final String jwt = jwtUtil.generateToken(userDetails);
 
+        String role = "";
+        if (userDetails instanceof CustomUserDetails) {
+            role = ((CustomUserDetails) userDetails).getUser().getRole().name();
+        }
+
         // 4. Return the response
         LoginResponseDto response = LoginResponseDto.builder()
                 .token(jwt)
+                .role(role)
                 .message("Login successful")
                 .build();
 

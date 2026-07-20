@@ -11,4 +11,5 @@ public interface TrainerService {
     Trainer getTrainerById(Long id);
     Trainer updateTrainer(Long id, TrainerDto dto);
     void deleteTrainer(Long id);
+    Trainer getTrainerByEmail(String email);
 }

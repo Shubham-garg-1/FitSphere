@@ -7,6 +7,8 @@ import com.fitsphere.model.Role;
 import com.fitsphere.model.Trainer;
 import com.fitsphere.repository.UserRepository;
 import com.fitsphere.repository.TrainerRepository;
+import com.fitsphere.repository.WorkoutRepository;
+import com.fitsphere.model.Workout;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TrainerRepository trainerRepository;
+    private final WorkoutRepository workoutRepository;
 
     @Override
     public User registerUser(UserRegistrationDto userRegistrationDto) {
@@ -26,11 +29,20 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Email already exists");
         }
 
+        Role userRole = Role.USER;
+        if (userRegistrationDto.getRole() != null && !userRegistrationDto.getRole().trim().isEmpty()) {
+            try {
+                userRole = Role.valueOf(userRegistrationDto.getRole().trim().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                // fallback to Role.USER
+            }
+        }
+
         User user = User.builder()
                 .name(userRegistrationDto.getName())
                 .email(userRegistrationDto.getEmail())
                 .password(passwordEncoder.encode(userRegistrationDto.getPassword()))
-                .role(Role.USER)
+                .role(userRole)
                 .build();
 
         return userRepository.save(user);
@@ -74,6 +86,26 @@ public class UserServiceImpl implements UserService {
         }
 
         client.setTrainer(trainer);
+        return userRepository.save(client);
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public User assignWorkout(Long clientId, Long workoutId) {
+        User client = getUserById(clientId);
+        Workout workout = workoutRepository.findById(workoutId)
+                .orElseThrow(() -> new RuntimeException("Workout not found with id: " + workoutId));
+        client.getWorkouts().add(workout);
+        return userRepository.save(client);
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public User removeWorkout(Long clientId, Long workoutId) {
+        User client = getUserById(clientId);
+        Workout workout = workoutRepository.findById(workoutId)
+                .orElseThrow(() -> new RuntimeException("Workout not found with id: " + workoutId));
+        client.getWorkouts().remove(workout);
         return userRepository.save(client);
     }
 }

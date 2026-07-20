@@ -10,6 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.fitsphere.model.User;
+import com.fitsphere.model.Workout;
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api/trainers")
@@ -46,5 +49,26 @@ public class TrainerController {
     public ResponseEntity<Void> deleteTrainer(@PathVariable Long id) {
         trainerService.deleteTrainer(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<Trainer> getTrainerProfile(Authentication authentication) {
+        String email = authentication.getName();
+        Trainer trainer = trainerService.getTrainerByEmail(email);
+        return ResponseEntity.ok(trainer);
+    }
+
+    @GetMapping("/my-clients")
+    public ResponseEntity<List<User>> getMyClients(Authentication authentication) {
+        String email = authentication.getName();
+        Trainer trainer = trainerService.getTrainerByEmail(email);
+        return ResponseEntity.ok(trainer.getClients());
+    }
+
+    @GetMapping("/my-workouts")
+    public ResponseEntity<List<Workout>> getMyWorkouts(Authentication authentication) {
+        String email = authentication.getName();
+        Trainer trainer = trainerService.getTrainerByEmail(email);
+        return ResponseEntity.ok(trainer.getWorkouts());
     }
 }

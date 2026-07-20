@@ -35,4 +35,16 @@ public class UserController {
         User user = userService.getUserById(id);
         return ResponseEntity.ok(user);
     }
+
+    @PutMapping("/{clientId}/assign-workout/{workoutId}")
+    public ResponseEntity<User> assignWorkout(@PathVariable Long clientId, @PathVariable Long workoutId) {
+        User updatedClient = userService.assignWorkout(clientId, workoutId);
+        return ResponseEntity.ok(updatedClient);
+    }
+
+    @PutMapping("/{clientId}/remove-workout/{workoutId}")
+    public ResponseEntity<User> removeWorkout(@PathVariable Long clientId, @PathVariable Long workoutId) {
+        User updatedClient = userService.removeWorkout(clientId, workoutId);
+        return ResponseEntity.ok(updatedClient);
+    }
 }

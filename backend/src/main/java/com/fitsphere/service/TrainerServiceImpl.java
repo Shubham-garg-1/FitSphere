@@ -82,4 +82,10 @@ public class TrainerServiceImpl implements TrainerService {
 
         trainerRepository.delete(trainer);
     }
+
+    @Override
+    public Trainer getTrainerByEmail(String email) {
+        return trainerRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Trainer not found with email: " + email));
+    }
 }

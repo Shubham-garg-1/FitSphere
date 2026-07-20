@@ -29,6 +29,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .cors(cors -> cors.configurationSource(request -> {
+                var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
+                corsConfiguration.setAllowedOrigins(java.util.List.of("http://localhost:5173"));
+                corsConfiguration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                corsConfiguration.setAllowedHeaders(java.util.List.of("*"));
+                corsConfiguration.setAllowCredentials(true);
+                return corsConfiguration;
+            }))
             .csrf(csrf -> csrf.disable())
             .exceptionHandling(exception -> exception
                 .authenticationEntryPoint((request, response, authException) -> {
@@ -47,11 +55,11 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                 .requestMatchers("/api/test/**", "/api/test").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/trainers/**").hasAnyRole("USER", "ADMIN")
-                .requestMatchers("/api/trainers/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/workouts/**").hasAnyRole("USER", "ADMIN")
-                .requestMatchers("/api/workouts/**").hasRole("ADMIN")
+                .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN", "TRAINER")
+                .requestMatchers(HttpMethod.GET, "/api/trainers/**").hasAnyRole("USER", "ADMIN", "TRAINER")
+                .requestMatchers("/api/trainers/**").hasAnyRole("ADMIN", "TRAINER")
+                .requestMatchers(HttpMethod.GET, "/api/workouts/**").hasAnyRole("USER", "ADMIN", "TRAINER")
+                .requestMatchers("/api/workouts/**").hasAnyRole("ADMIN", "TRAINER")
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
